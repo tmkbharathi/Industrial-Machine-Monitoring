@@ -16,7 +16,9 @@ A real-time monitoring system designed for industrial environments to track mach
 
 | Issue | Root Cause | Solution |
 | :--- | :--- | :--- |
-| **Blank Serial Terminal** | Baud rate mismatch (115200 was too fast for some virtual terminals). | Reverted to **9600 baud** for maximum compatibility. |
+| **DHT11 (Data)** | **2** | `DHT_PIN` |
+| **Zero Cloud Entries** | Request sent but rejected by server (Malformed HTTP). | Refactored `postToThingSpeak` for strict **HTTP CRLF** compliance and verified server responses. |
+| **Blank Serial Terminal** | Baud rate mismatch (115200 was too slow for some virtual terminals). | Reverted to **9600 baud** for maximum compatibility. |
 | **Ethernet IP: 0.0.0.0** | SPI Chip Select (CS) pin was not explicitly initialized. | Added `Ethernet.init(10)` and verified SCS wiring on Pin 10. |
 | **Cloud Connection Failed** | No Gateway/DNS info in Static IP; SIM was not bridged to internet. | Implemented **DHCP** and configured Bridge Mode in PicSimLab Spare Parts. |
 | **Missing Libraries** | `Ethernet.h` not in the host environment. | Automated library installation using `arduino-cli`. |
@@ -29,8 +31,10 @@ A real-time monitoring system designed for industrial environments to track mach
 2.  **Build**: Run `make uno-station` (or `make uno-gateway`).
 3.  **Simulation Configuration**:
     - **Board**: Arduino Uno.
+    - **Frequency**: **16 MHz** (Critical for DHT sensor timing).
     - **Shield**: **Eth W5500** (Spare Part).
     - **SCS Pin**: Connect to Pin 10.
+    - **DHT11 (Data)**: Connect to **Digital Pin 8**.
     - **Network**: Bridge the Spare Part to your host internet adapter.
 4.  **Terminal**: Open IO Virtual Terminal at **9600 baud**.
 

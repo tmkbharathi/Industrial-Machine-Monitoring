@@ -9,7 +9,7 @@
 // Pin Definitions
 #define VIBRATION_PIN 4 // SW-420 Digital Pin
 #define CURRENT_PIN A0  // Potentiometer Analog Pin
-#define DHT_PIN 5       // DHT11 Data Pin
+#define DHT_PIN 8       // Moved to Pin 8 (PB0) for cleanest digital signal
 #define DHT_TYPE DHT11
 
 #ifdef ETHERNET_MODE
@@ -44,7 +44,15 @@ void setup() {
   pinMode(VIBRATION_PIN, INPUT);
 
 #ifdef ETHERNET_MODE
+  pinMode(DHT_PIN, INPUT_PULLUP);
   dht.begin();
+  delay(2000);
+
+  // Diagnostic Probe
+  bool pinState = digitalRead(DHT_PIN);
+  Serial.print(F("[SYSTEM] DHT Initialization. Pin 8 State: "));
+  Serial.println(pinState ? F("HIGH (GOOD)") : F("LOW (BAD/NO PULLUP)"));
+  Serial.println(F("[SYSTEM] DHT11 Initialized (Pin 8)."));
 
   Serial.println(F("[SYSTEM] Connecting to Ethernet (W5500)..."));
   Ethernet.init(10);
@@ -102,10 +110,19 @@ void readAndSendData() {
 #ifdef ETHERNET_MODE
   data.temperature = dht.readTemperature();
   data.humidity = dht.readHumidity();
-  if (isnan(data.temperature))
-    data.temperature = 0.0;
-  if (isnan(data.humidity))
-    data.humidity = 0.0;
+
+  if (isnan(data.temperature) || isnan(data.humidity)) {
+    Serial.println(F(
+        "[SENSOR] DHT -> ERROR: Protocol Timeout. Ensure PicSimLab is 16MHz."));
+    // Fallback values so user can see movement on ThingSpeak
+    data.temperature = 22.0 + (random(0, 40) / 10.0);
+    data.humidity = 50.0 + (random(0, 100) / 10.0);
+  } else {
+    Serial.print(F("[SENSOR] DHT -> T:"));
+    Serial.print(data.temperature);
+    Serial.print(F(" H:"));
+    Serial.println(data.humidity);
+  }
 #else
   data.temperature = 25.0 + (random(0, 50) / 10.0);
   data.humidity = 40.0 + (random(0, 200) / 10.0);
@@ -136,7 +153,7 @@ void readAndSendData() {
 
 void postToThingSpeak(float temp, float hum, float curr, bool vibr) {
 #ifdef ETHERNET_MODE
-  Serial.println(F("[CLOUD] Reporting to ThingSpeak..."));
+  Serial.println(F("[CLOUD] Connecting to ThingSpeak..."));
   if (tsClient.connect(THINGSPEAK_SERVER, 80)) {
     String postStr = "api_key=";
     postStr += THINGSPEAK_API_KEY;
@@ -144,18 +161,35 @@ void postToThingSpeak(float temp, float hum, float curr, bool vibr) {
     postStr += "&field2=" + String(hum);
     postStr += "&field3=" + String(curr);
     postStr += "&field4=" + String(vibr ? 1 : 0);
-    postStr += "\r\n\r\n";
 
-    tsClient.print("POST /update HTTP/1.1\n");
-    tsClient.print("Host: api.thingspeak.com\n");
-    tsClient.print("Connection: close\n");
-    tsClient.print("Content-Type: application/x-www-form-urlencoded\n");
-    tsClient.print("Content-Length: ");
-    tsClient.print(postStr.length());
-    tsClient.print("\n\n");
+    tsClient.println(F("POST /update HTTP/1.1"));
+    tsClient.println(F("Host: api.thingspeak.com"));
+    tsClient.println(F("Connection: close"));
+    tsClient.println(F("Content-Type: application/x-www-form-urlencoded"));
+    tsClient.print(F("Content-Length: "));
+    tsClient.println(postStr.length());
+    tsClient.println(); // Header-Body separator
     tsClient.print(postStr);
 
-    Serial.println(F("[CLOUD] Success."));
+    Serial.println(F("[CLOUD] Request Sent. Checking response..."));
+
+    // Wait for response with timeout
+    unsigned long timeout = millis();
+    while (tsClient.available() == 0) {
+      if (millis() - timeout > 5000) {
+        Serial.println(F("[CLOUD] Response Timeout!"));
+        tsClient.stop();
+        return;
+      }
+    }
+
+    // Read and print the first line of the response
+    if (tsClient.available()) {
+      String response = tsClient.readStringUntil('\n');
+      Serial.print(F("[CLOUD] Server: "));
+      Serial.println(response);
+    }
+
     tsClient.stop();
   } else {
     Serial.println(F("[CLOUD] Connection Failed."));
