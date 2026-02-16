@@ -78,8 +78,7 @@ void loop() {
 
   readAndSendData();
 
-  // ThingSpeak update frequency (15s minimum)
-  delay(1000);
+  delay(15000); // Wait 15s for ThingSpeak
 }
 
 void heartbeat() {

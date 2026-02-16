@@ -1,0 +1,13 @@
+# Arduino build artifacts
+gateway/build/
+station/build/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.bak

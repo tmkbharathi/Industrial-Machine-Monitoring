@@ -1,3 +1,6 @@
+#include "imsms_types.h"
+#include <Arduino.h>
+
 #ifdef ETHERNET_MODE
 #include <Ethernet.h>
 #include <EthernetServer.h>
@@ -7,7 +10,18 @@
 #ifdef ETHERNET_MODE
 byte mac_eth[] = GATEWAY_MAC;
 IPAddress ip_eth GATEWAY_IP_AVR;
-EthernetServer server(GATEWAY_PORT);
+
+// Fix for ESP32 compilation error with Ethernet library
+// EthernetServer is considered abstract on ESP32 due to missing begin(uint16_t)
+class ClientServer : public EthernetServer {
+public:
+  ClientServer(uint16_t port) : EthernetServer(port) {}
+#if defined(ARDUINO_ARCH_ESP32)
+  void begin(uint16_t port = 0) override { EthernetServer::begin(); }
+#endif
+};
+
+ClientServer server(GATEWAY_PORT);
 #endif
 
 // Node tracking
@@ -95,16 +109,21 @@ void handleClientConnections() {
 }
 
 void displayNodeStatus() {
-  Serial.println("\n--- Connected Nodes Status ---");
-  Serial.printf("%-10s | %-5s | %-5s | %-7s | %-5s | %-7s\n", "Name", "Temp",
-                "Hum", "Current", "Vibr", "Uptime");
+  Serial.println(F("\n--- Connected Nodes Status ---"));
+  Serial.println(F("Name       | Temp  | Hum   | Current | Vibr  | Uptime "));
   Serial.println(
-      "------------------------------------------------------------------");
+      F("----------------------------------------------------------"));
   for (int i = 0; i < connectedNodesCount; i++) {
-    Serial.printf("%-10s | %-5.1f | %-5.1f | %-7.2f | %-5s | %-7d\n",
-                  nodeRegistry[i].station_name, nodeRegistry[i].temperature,
-                  nodeRegistry[i].humidity, nodeRegistry[i].current,
-                  nodeRegistry[i].vibration ? "YES" : "NO",
-                  nodeRegistry[i].uptime_seconds);
+    Serial.print(nodeRegistry[i].station_name);
+    Serial.print(F(" | "));
+    Serial.print(nodeRegistry[i].temperature, 1);
+    Serial.print(F("  | "));
+    Serial.print(nodeRegistry[i].humidity, 1);
+    Serial.print(F("  | "));
+    Serial.print(nodeRegistry[i].current, 2);
+    Serial.print(F("    | "));
+    Serial.print(nodeRegistry[i].vibration ? F("YES") : F("NO "));
+    Serial.print(F("   | "));
+    Serial.println(nodeRegistry[i].uptime_seconds);
   }
 }

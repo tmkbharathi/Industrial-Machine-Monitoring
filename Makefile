@@ -2,7 +2,8 @@
 
 # Configuration
 ARDUINO_CLI = "C:\Users\Manikanda Bharathi\AppData\Local\Programs\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe"
-BOARD = esp32:esp32:esp32
+BOARD = arduino:avr:uno
+# ESP32_BOARD = esp32:esp32:esp32
 UNO_BOARD = arduino:avr:uno
 PORT = COM3 # Change this to your actual port
 

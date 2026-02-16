@@ -3,9 +3,8 @@
 
 #include <stdint.h>
 
-#if defined(ARDUINO_ARCH_AVR)
+// Enable Ethernet mode for networking
 #define ETHERNET_MODE
-#endif
 
 /**
  * @brief Machine telemetry data structure
