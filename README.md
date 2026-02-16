@@ -1,6 +1,6 @@
 # Industrial Machine State Monitoring System (IMSMS)
 
-A real-time monitoring system designed for industrial environments to track machine parameters (Temperature, Humidity, Current, and Vibration) and report them directly to the **ThingSpeak Cloud**.
+A real-time monitoring system designed for industrial environments to track machine parameters (Temperature, Humidity, Current, and Vibration) and report them directly to the **ThingSpeak Cloud**. **Now with fully automated setup via Makefile!**
 
 ## 🚀 Accomplishments & Features
 
@@ -25,7 +25,20 @@ A real-time monitoring system designed for industrial environments to track mach
 | **ThingSpeak Blocking** | Updates were sent too fast (1s delay). | Enforced a strict **15-second delay** to match ThingSpeak's rate limit. |
 | **Gateway Build Errors** | Used ESP32-specific `Serial.printf` on AVR. | Refactored code to standard `Serial.print` for cross-platform compatibility. |
 
-## 🕹 How to Run in PicSimLab
+## ⚙️ Prerequisites & Setup
+
+To run this project, you need the **Arduino CLI** installed on your system.
+
+### 1. Install Arduino CLI
+-   **Download**: Get the latest binary from the [Arduino CLI Releases page](https://github.com/arduino/arduino-cli/releases).
+-   **Extract**: Place the `arduino-cli.exe` (Windows) or `arduino-cli` (Linux/Mac) in a folder on your computer.
+
+### 2. Configure Makefile
+The [**Makefile**](file:///c:/Users/Manikanda%20Bharathi/Desktop/IMSMS/Makefile) is **cross-platform** (Windows, Linux, Mac).
+-   If `arduino-cli` is in your system **PATH**, no changes are needed!
+-   If not, update the `LOCAL_CLI_PATH` in the Makefile to match your installation.
+
+## 🕹️ How to Run in PicSimLab
 
 1.  **Preparation**: Add your ThingSpeak API Key in `imsms_types.h`.
 2.  **Build**: Run `make uno-station` (or `make uno-gateway`).
