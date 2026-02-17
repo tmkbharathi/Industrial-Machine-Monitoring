@@ -23,6 +23,8 @@ EthernetClient tsClient;
 
 // Task handles or state variables
 char stationName[16];
+unsigned long lastCloudUpdate = 0;
+bool vibrationLatched = false;
 
 // Function prototypes
 void readAndSendData();
@@ -82,11 +84,20 @@ void setup() {
 }
 
 void loop() {
-  // heartbeat(); // Visual double-blink
+  // 1. Constantly poll the vibration sensor (Non-blocking)
+  if (digitalRead(VIBRATION_PIN) == HIGH) {
+    vibrationLatched = true;
+  }
 
-  readAndSendData();
+  // 2. Periodic Cloud Update (Non-blocking, every 15s)
+  if (millis() - lastCloudUpdate >= 15000) {
+    readAndSendData();
+    lastCloudUpdate = millis();
+    vibrationLatched = false; // Reset latch after sending
+  }
 
-  delay(15000); // Wait 15s for ThingSpeak
+  // heartbeat(); // Visual double-blink (could also be refactored to
+  // non-blocking)
 }
 
 void heartbeat() {
@@ -103,7 +114,9 @@ void readAndSendData() {
   strncpy(data.station_name, stationName, sizeof(data.station_name));
 
   // Sensoring
-  data.vibration = digitalRead(VIBRATION_PIN);
+  // Combine current state with any latched activity since last update
+  data.vibration = vibrationLatched || (digitalRead(VIBRATION_PIN) == HIGH);
+
   int analogValue = analogRead(CURRENT_PIN);
   data.current = (float)analogValue * (5.0 / 1023.0);
 

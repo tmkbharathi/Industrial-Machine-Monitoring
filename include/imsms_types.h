@@ -10,10 +10,10 @@
 typedef struct {
     char station_name[16];   // e.g., "STA_XXXX"
     float temperature;       // in Celsius
-    float pressure;          // in kPa or bar
-    float noise;             // in dB
-    float vibration;         // in m/s^2 or G
-    uint32_t uptime_seconds; // total run time in current shift
+    float humidity;          // in %
+    float current;           // in Amperes
+    bool vibration;          // true if vibration detected
+    uint32_t uptime_seconds; // total run time in seconds
 } machine_data_t;
 
 // Network configuration constants

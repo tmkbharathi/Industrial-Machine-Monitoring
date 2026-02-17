@@ -11,6 +11,9 @@ A real-time monitoring system designed for industrial environments to track mach
     - **Heartbeat LED**: Onboard Pin 13 double-blinks every 15 seconds to confirm CPU health.
     - **Startup Header**: Bold project initialization message in Serial Terminal.
     - **Verbose Debugging**: Step-by-step logging of network and sensor initialization.
+- **Non-Blocking I/O & Latching**:
+    - Replaced `delay()` with `millis()` for zero-lag sensor polling.
+    - **Vibration Latch**: Remembers button presses even between cloud updates, ensuring no event is missed.
 
 ## 🛠 Challenges Faced & Solutions
 
@@ -23,6 +26,7 @@ A real-time monitoring system designed for industrial environments to track mach
 | **Cloud Connection Failed** | No Gateway/DNS info in Static IP; SIM was not bridged to internet. | Implemented **DHCP** and configured Bridge Mode in PicSimLab Spare Parts. |
 | **Missing Libraries** | `Ethernet.h` not in the host environment. | Automated library installation using `arduino-cli`. |
 | **ThingSpeak Blocking** | Updates were sent too fast (1s delay). | Enforced a strict **15-second delay** to match ThingSpeak's rate limit. |
+| **Struct Mismatch** | `imsms_types.h` had wrong fields. | Updated `machine_data_t` to include `humidity` and `current`. |
 | **Gateway Build Errors** | Used ESP32-specific `Serial.printf` on AVR. | Refactored code to standard `Serial.print` for cross-platform compatibility. |
 
 ## ⚙️ Prerequisites & Setup
@@ -47,6 +51,8 @@ The [**Makefile**](file:///c:/Users/Manikanda%20Bharathi/Desktop/IMSMS/Makefile)
     - **Frequency**: **16 MHz** (Critical for DHT sensor timing).
     - **Shield**: **Eth W5500** (Spare Part).
     - **SCS Pin**: Connect to Pin 10.
+    - **Current Sensor**: Connect a **Potentiometer** to **Analog Pin A0**.
+    - **Vibration Sensor**: Connect a **Switch** or **Push Button** to **Digital Pin 4**.
     - **DHT11 (Data)**: Connect to **Digital Pin 8**.
     - **Network**: Bridge the Spare Part to your host internet adapter.
 4.  **Terminal**: Open IO Virtual Terminal at **9600 baud**.
