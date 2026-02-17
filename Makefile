@@ -40,25 +40,25 @@ setup:
 	@$(ARDUINO_CLI) lib install $(LIBS)
 	@echo "--- Setup Complete ---"
 
-gateway: setup
+gateway: 
 	@echo "--- Compiling Gateway ---"
 	@mkdir -p gateway/build
-	$(ARDUINO_CLI) compile --fqbn $(BOARD) --build-path gateway/build $(GATEWAY_SKETCH)
+	$(ARDUINO_CLI) compile --fqbn $(BOARD) --build-property "compiler.cpp.extra_flags=\"-I$(CURDIR)/include\"" --build-path gateway/build $(GATEWAY_SKETCH)
 
-station: setup
+station: 
 	@echo "--- Compiling Station ---"
 	@mkdir -p station/build
-	$(ARDUINO_CLI) compile --fqbn $(BOARD) --build-path station/build $(STATION_SKETCH)
+	$(ARDUINO_CLI) compile --fqbn $(BOARD) --build-property "compiler.cpp.extra_flags=\"-I$(CURDIR)/include\"" --build-path station/build $(STATION_SKETCH)
 
-uno-gateway: setup
+uno-gateway: 
 	@echo "--- Compiling Gateway for Uno (Simulation) ---"
 	@mkdir -p gateway/build
-	$(ARDUINO_CLI) compile --fqbn $(UNO_BOARD) --build-path gateway/build $(GATEWAY_SKETCH)
+	$(ARDUINO_CLI) compile --fqbn $(UNO_BOARD) --build-property "compiler.cpp.extra_flags=\"-I$(CURDIR)/include\"" --build-path gateway/build $(GATEWAY_SKETCH)
 
-uno-station: setup
+uno-station: 
 	@echo "--- Compiling Station for Uno (Simulation) ---"
 	@mkdir -p station/build
-	$(ARDUINO_CLI) compile --fqbn $(UNO_BOARD) --build-path station/build $(STATION_SKETCH)
+	$(ARDUINO_CLI) compile --fqbn $(UNO_BOARD) --build-property "compiler.cpp.extra_flags=\"-I$(CURDIR)/include\"" --build-path station/build $(STATION_SKETCH)
 
 upload-gateway:
 	@echo "--- Uploading Gateway ---"
