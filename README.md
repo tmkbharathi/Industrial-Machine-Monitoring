@@ -44,7 +44,7 @@ The [**Makefile**](file:///c:/Users/Manikanda%20Bharathi/Desktop/IMSMS/Makefile)
 
 ## 🕹️ How to Run in PicSimLab
 
-1.  **Preparation**: Add your ThingSpeak API Key in `imsms_types.h`.
+1.  **Preparation**: (Optional) Update the ThingSpeak API Key in [imsms_types.h](include/imsms_types.h) if you wish to use your own channel. Otherwise, telemetry will be sent to the default public channel listed in the [Monitoring](#monitoring) section.
 2.  **Build**: Run `make uno-station` (or `make uno-gateway`).
 3.  **Simulation Configuration**:
     - **Board**: Arduino Uno.
@@ -55,7 +55,11 @@ The [**Makefile**](file:///c:/Users/Manikanda%20Bharathi/Desktop/IMSMS/Makefile)
     - **Vibration Sensor**: Connect a **Switch** or **Push Button** to **Digital Pin 4**.
     - **DHT11 (Data)**: Connect to **Digital Pin 8**.
     - **Network**: Bridge the Spare Part to your host internet adapter.
-4.  **Terminal**: Open IO Virtual Terminal at **9600 baud**.
+4.  **Loading the File**:
+    - In PicSimLab: `File` -> `Load Hex`.
+    - Navigate to `station/build/` and select `station.ino.hex`.
+5.  **Terminal**: Open IO Virtual Terminal at **9600 baud**.
+6.  **Save Workspace (Optional)**: After configuring all Spare Parts, go to `File` -> `Save Workspace` to create a `.pbi` file for quick loading next time.
 
 ## 📊 Monitoring
-View live charts on your [ThingSpeak Channel](https://thingspeak.com/channels/3266149).
+View live charts on your [ThingSpeak Channel](https://thingspeak.mathworks.com/channels/3266149/).
